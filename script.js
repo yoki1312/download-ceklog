@@ -1,6 +1,8 @@
 const { Pool } = require('pg'); 
 const mysql = require('mysql2');
 const collect = require('collect.js');
+var moment = require('moment');
+let dateNowMin = moment().subtract(1, 'days').format('YYYY-MM-DD');
 
 const koneksiDatabasePSG = new Pool({
     user: 'a141',
@@ -9,6 +11,8 @@ const koneksiDatabasePSG = new Pool({
     password: 'yoki1312',
     port: 5432,
 });
+
+console.log(dateNowMin);
 
 const koneksiDatabaseSMO = mysql.createPool({
     host: '52.74.55.188',
@@ -60,7 +64,7 @@ async function downloadData(dataExited,karyawan) {
         let pluckDataExited = collect(dataExited).pluck('att_id').all();
         notInAtt = pluckDataExited.join(',');
     }
-    const query = `SELECT tb.pegnik as nip, TO_CHAR( masuk, 'yyyy-mm-dd' ) as tanggal, ta.masuk, ta.keluar, ta.idtrxabsen as att_id FROM perol.trxabsen ta INNER JOIN perol.maspeg tb ON tb.idmaspeg = ta.rel_maspeg WHERE masuk >= '2024-05-20'`; 
+    const query = `SELECT tb.pegnik as nip, TO_CHAR( masuk, 'yyyy-mm-dd' ) as tanggal, ta.masuk, ta.keluar, ta.idtrxabsen as att_id FROM perol.trxabsen ta INNER JOIN perol.maspeg tb ON tb.idmaspeg = ta.rel_maspeg WHERE masuk >= '${dateNowMin}'`; 
     
     try {
         const client = await koneksiDatabasePSG.connect();

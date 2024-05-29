@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "collect.js": "^4.36.1",
+    "moment": "^2.30.1",
     "mysql2": "^3.9.8",
     "pg": "^8.11.5"
   },
