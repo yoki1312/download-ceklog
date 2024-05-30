@@ -2,13 +2,49 @@ const { Pool } = require('pg');
 const mysql = require('mysql2');
 const collect = require('collect.js');
 var moment = require('moment');
+const { exec } = require('child_process');
+const os = require('os');
+
+function tutupTerminal() {
+    if (os.platform() === 'darwin') {
+        // Untuk macOS
+        exec('osascript -e \'tell application "Terminal" to quit\'', (err, stdout, stderr) => {
+            if (err) {
+                console.error(`Error: ${err.message}`);
+                return;
+            }
+            if (stderr) {
+                console.error(`Error: ${stderr}`);
+                return;
+            }
+            console.log(`Terminal ditutup: ${stdout}`);
+        });
+    } else if (os.platform() === 'win32') {
+        // Untuk Windows
+        exec('taskkill /IM cmd.exe', (err, stdout, stderr) => {
+            if (err) {
+                console.error(`Error: ${err.message}`);
+                return;
+            }
+            if (stderr) {
+                console.error(`Error: ${stderr}`);
+                return;
+            }
+            console.log(`Terminal ditutup: ${stdout}`);
+        });
+    } else {
+        console.log('Sistem operasi tidak didukung.');
+    }
+}
+
 let dateNowMin = moment().subtract(1, 'days').format('YYYY-MM-DD');
 
+
 const koneksiDatabasePSG = new Pool({
-    user: 'a141',
-    host: 'localhost',
+    user: 'postgres',
+    host: '192.108.10.115',
     database: 'perol',
-    password: 'yoki1312',
+    password: 'divinfo',
     port: 5432,
 });
 
@@ -85,9 +121,8 @@ async function downloadData(dataExited,karyawan) {
 
             let cekData = collect(dataExited).where('att_id', element.att_id).first();
             if(cekData == undefined){
-                if(cekData.absen_out != null && cekData.absen_in != null){
-                    dataInsert.push(element);
-                }
+                dataInsert.push(element);
+               
             }else{
                 if(element.keluar != null){
                     dataUpdated.push(element);
@@ -101,6 +136,7 @@ async function downloadData(dataExited,karyawan) {
 
         }    
         client.release(); 
+        tutupTerminal()
     } catch (error) {
         console.error('Error in downloadData:', error);
     } finally { 
@@ -168,3 +204,4 @@ async function updateBatchData(dataArray) {
     });
     
   }
+  
